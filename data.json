@@ -1,0 +1,182 @@
+{
+  "u": [
+    {
+      "t": "Bible Study",
+      "d": "Monday, 7:00-8:00, Lh32",
+      "i": "assets/updates/t5.jpeg"
+    },
+    {
+      "t": "Inreach Evangelism",
+      "d": "Wednesday, 6:50pm-8:00, Pavilion",
+      "i": "assets/updates/t1.jpeg"
+    },
+    {
+      "t": "Annual General Meeting",
+      "d": "Sunday, 4:00pm-6:00, Mainhall",
+      "i": "assets/updates/t4.jpeg"
+    },
+    {
+      "t": "Being the doers of the word",
+      "d": "Wenesday, 7pm, Mainhall",
+      "i": "assets/updates/t7.jpeg"
+    },
+    {
+      "t": "The wells of salvation",
+      "d": "Wensday, 5:50pm, Mainhall",
+      "i": "assets/updates/t6.jpeg"
+    },
+    {
+      "t": "Aligning",
+      "d": "Friday, 7pm, Mainhall",
+      "i": "assets/updates/t8.jpeg"
+    },
+    {
+      "t": "Sunday service",
+      "d": "Sunday, 7:00am & 9:30am, Mainhall",
+      "i": "assets/updates/t9.jpeg"
+    },
+    {
+      "t": "Intercessory Prayers",
+      "d": "Sunday, 7am, Mainhall",
+      "i": "assets/updates/sun3.jpeg"
+    },
+    {
+      "t": "Congratulations to our new leaders",
+      "d": "Grace, wisdom and persevirance be upon them",
+      "i": "assets/updates/t.jpeg"
+    }
+  ],
+  "a": [
+    {
+      "t": "Creative Night 2026",
+      "g": "",
+      "i": "assets/images/img1.jpg"
+    },
+        {
+      "t": "",
+      "g": "",
+      "i": ""
+    },    {
+      "t": "Creative Night 2026",
+      "g": "https://photos.google.com/share/AF1QipPJYVf2CJLshZxPwI_-Uf3VoOq2jQtjA6x38AK4z8aZP_76a0IOxGi30ZvgqGURBQ?key=dEdkMFNEUEpuMFlVVk5DNU5XeU5oSlhWeVI4V2RR",
+      "i": "assets/images/img1.jpg"
+    }
+  ],
+  "hero": [
+    "assets/images/img1.jpg",
+    "assets/images/img2.jpg",
+    "assets/images/img3.jpg",
+    "assets/images/img4.jpg",
+    "assets/images/img5.jpg",
+    "assets/images/img6.jpg",
+    "assets/images/img7.jpg",
+    "assets/images/img8.jpg",
+    "assets/images/img9.jpg",
+    "assets/images/img10.jpg",
+    "assets/images/img11.jpg",
+    "assets/images/img12.jpg",
+    "assets/images/img13.jpg",
+    "assets/images/img14.jpg"
+  ],
+  "songs": [
+    {
+      "t": "You are good",
+      "a": "ntokozo mambo",
+      "s": "Friday",
+      "ap": "https://music.apple.com/us/album/you-are-good/1885498087?i=1885498420",
+      "au": "",
+      "i": "",
+      "l": ""
+    },
+    {
+      "t": "Good God",
+      "a": "Minister GUc",
+      "s": "Sunday",
+      "ap": "https://music.apple.com/ke/song/good-god-feat-sunmisola-agbebi/1851888073",
+      "au": "",
+      "i": "",
+      "l": ""
+    },
+    {
+      "t": "Niseme Nini",
+      "a": "Dr ipyana",
+      "s": "Sunday",
+      "ap": "https://music.apple.com/ke/song/niseme-nini/1648016759",
+      "au": "",
+      "i": "",
+      "l": ""
+    },
+    {
+      "t": "Umenipendelea",
+      "a": "Henrick Mruma",
+      "s": "Friday",
+      "ap": "https://music.apple.com/ke/song/umenipendelea-feat-eliya-mwantondo/1841297776",
+      "au": "",
+      "i": "",
+      "l": ""
+    },
+    {
+      "t": "Ninakuamini",
+      "a": "Boaz Danken",
+      "s": "Sunday",
+      "ap": "https://music.apple.com/ke/song/ninakuamini-live/1851791954",
+      "au": "",
+      "i": "",
+      "l": ""
+    },
+    {
+      "t": "Have you seen",
+      "a": "Judikay",
+      "s": "Sunday",
+      "ap": "https://music.apple.com/us/music-video/have-you-seen/1839876935",
+      "au": "",
+      "i": "",
+      "l": ""
+    },
+    {
+      "t": "I never seen any God like you",
+      "a": "Emirate stixx",
+      "s": "Sunday",
+      "ap": "https://music.apple.com/ke/song/i-never-see-any-god-like-you/1769968016",
+      "au": "",
+      "i": "",
+      "l": ""
+    },
+    {
+      "t": "This kind God another one no dey",
+      "a": "Gabriel Eziashi",
+      "s": "Sunday",
+      "ap": "https://music.apple.com/ke/song/this-kind-god/1511641159",
+      "au": "",
+      "i": "",
+      "l": ""
+    },
+    {
+      "t": "Mercy",
+      "a": "Moses Bliss",
+      "s": "Sunday",
+      "ap": "https://music.apple.com/ke/song/mercy/1792850058",
+      "au": "",
+      "i": "",
+      "l": ""
+    },
+    {
+      "t": "Eze ebube",
+      "a": "Neon adejo",
+      "s": "Sunday",
+      "ap": "https://music.apple.com/ke/song/eze-ebube/1763136846",
+      "au": "",
+      "i": "",
+      "l": ""
+    },
+    {
+      "t": "No one like you",
+      "a": "Eben",
+      "s": "Sunday",
+      "ap": "",
+      "au": "songs/No One Like You - Ft Nathaniel Bassey.mp3",
+      "i": "",
+      "l": ""
+    }
+  ]
+}
