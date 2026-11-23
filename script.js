@@ -56,7 +56,10 @@ DFC.ready.then(() => {   /* wait until data.json has loaded (this closes with  }
   function renderAlbums() {
     const a = document.querySelector('div.albums');
     if (!a) return;
-    a.innerHTML = albums.length ? albums.map(x => `<a class="al" href="${esc(safe(x.g) || '#')}" target="_blank" rel="noopener"><div class="im" style="${safe(x.i) ? `background-image:url('${esc(safe(x.i))}')` : ''}"></div><div class="t"><h3>${esc(x.t)}</h3><span>View album</span></div></a>`).join('') : '<div class="empty">No albums yet.</div>'
+    const base = (typeof API_BASE !== 'undefined' ? API_BASE : '');
+    /* cover = the picture saved in data.json, or (if empty) fetched from the Google Photos link by api/album-cover.js */
+    const cover = x => safe(x.i) || (safe(x.g) ? `${base}/api/album-cover?img=1&url=${encodeURIComponent(x.g)}` : '');
+    a.innerHTML = albums.length ? albums.map(x => { const c = cover(x); return `<a class="al" href="${esc(safe(x.g) || '#')}" target="_blank" rel="noopener"><div class="im" ${c ? `style="background-image:url('${esc(c)}')"` : ''}></div><div class="t"><h3>${esc(x.t)}</h3><span>View album</span></div></a>` }).join('') : '<div class="empty">No albums yet.</div>'
   }
 
   renderUpdates(); renderAlbums(); auto();
