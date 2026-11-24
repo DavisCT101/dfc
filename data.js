@@ -4,7 +4,7 @@
    inside your GitHub repo. The admin "Publish" button commits changes to
    it through the GitHub API, and Vercel redeploys the site automatically.
    ===================================================================== */
-const GH = { owner: 'YOUR_GITHUB_USERNAME', repo: 'YOUR_REPO_NAME', branch: 'main', path: 'data.json' }; // NOT secret. The token is never written in this file.
+const GH = { owner: 'davisct101', repo: 'dfc', branch: 'main', path: 'data.json' }; // NOT secret. The token is never written in this file.
 /* If you open the admin on your own computer (Live Preview), put your live address here, e.g. 'https://dfc.vercel.app'. On the live site leave it ''. */
 const API_BASE = '';
 const SYNC = ['u', 'a', 'hero', 'songs'];   // these are published to GitHub. members/messages stay in the browser.
