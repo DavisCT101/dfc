@@ -11,11 +11,13 @@ const SYNC = ['u', 'a', 'hero', 'songs'];   // these are published to GitHub. me
 const API = `https://api.github.com/repos/${GH.owner}/${GH.repo}/contents/`;
 const b64e = s => btoa(unescape(encodeURIComponent(s)));
 const b64d = s => decodeURIComponent(escape(atob(String(s).replace(/\s/g, ''))));
-const why = r => r.status === 401 ? 'The token is wrong or expired.' : r.status === 403 ? 'The token is not allowed to write to this repo (it needs Contents: Read and write).' : r.status === 404 ? 'Repo, branch or file not found. Check the GH settings at the top of data.js.' : (r.status === 409 || r.status === 422) ? 'The file changed at the same time. Press Publish again.' : 'GitHub error ' + r.status;
+const why = r => r.status === 401 ? 'The token is wrong or expired.' : r.status === 403 ? 'GitHub refused (403): the token is not allowed to write files. Create a fine-grained token for THIS repo with Repository permissions > Contents = Read and write (if the repo belongs to an organization, the organization may need to approve it).' : r.status === 404 ? `GitHub could not find ${GH.owner}/${GH.repo} on branch "${GH.branch}". Check the GH settings at the top of data.js.` : (r.status === 409 || r.status === 422) ? 'The file changed at the same time. Press Publish again.' : 'GitHub error ' + r.status;
 
 /* Folder this script lives in, so data.json is found even when the page is inside a subfolder like /admin/ */
 const HERE = (typeof document !== 'undefined' && document.currentScript && document.currentScript.src) || (typeof location !== 'undefined' ? location.href : 'http://localhost/');
 const tf = (url, opt = {}, ms = 6000) => { const c = new AbortController(), t = setTimeout(() => c.abort(), ms); return fetch(url, { ...opt, signal: c.signal }).finally(() => clearTimeout(t)) };
+
+const detail = async r => { try { const j = await r.clone().json(); return j.message ? `\nGitHub says: "${j.message}"` + (/protected|rule/i.test(j.message) ? '\nThe branch has protection rules. In GitHub: repo Settings > Branches, remove the rule or allow it to be bypassed.' : '') + (/rate limit/i.test(j.message) ? '\nWait a minute and try again.' : '') : '' } catch (e) { return '' } };
 
 const DFC = {
   data: {}, dirty: new Set(),
@@ -48,12 +50,13 @@ const DFC = {
   async publish() {
     if (!DFC.token()) throw new Error('Add your GitHub token first (My profile > GitHub publishing).');
     if (!DFC.dirty.size) throw new Error('Nothing to publish.');
+    const dx = await DFC.diagnose(); if (dx) throw new Error(dx);
     let n = 0;
     const lift = async x => {              // new uploaded photos become real files in assets/uploads/
       if (typeof x === 'string' && x.startsWith('data:image/')) {
         const name = `assets/uploads/${Date.now()}-${n++}.jpg`;
         const r = await fetch(API + name, { method: 'PUT', headers: DFC.hdr(), body: JSON.stringify({ message: 'Admin: upload photo', content: x.split(',')[1], branch: GH.branch }) });
-        if (!r.ok) throw new Error('Photo upload failed. ' + why(r));
+        if (!r.ok) throw new Error('Photo upload failed. ' + why(r) + await detail(r));
         return name;
       }
       if (Array.isArray(x)) { const o = []; for (const y of x) o.push(await lift(y)); return o }
@@ -62,13 +65,13 @@ const DFC = {
     };
     const g = await fetch(API + GH.path + '?ref=' + GH.branch + '&t=' + Date.now(), { headers: DFC.hdr() });
     let remote = {}, sha;
-    if (g.ok) { const j = await g.json(); sha = j.sha; remote = JSON.parse(b64d(j.content)) } else if (g.status !== 404) throw new Error(why(g));
+    if (g.ok) { const j = await g.json(); sha = j.sha; remote = JSON.parse(b64d(j.content)) } else if (g.status !== 404) throw new Error(why(g) + await detail(g));
     const keys = [...DFC.dirty];
     for (const k of keys) { const v = await lift(DFC.data[k]); DFC.data[k] = v; remote[k] = v }
     const body = { message: 'Admin update: ' + keys.join(', '), content: b64e(JSON.stringify(remote, null, 2)), branch: GH.branch };
     if (sha) body.sha = sha;
     const p = await fetch(API + GH.path, { method: 'PUT', headers: DFC.hdr(), body: JSON.stringify(body) });
-    if (!p.ok) throw new Error(why(p));
+    if (!p.ok) throw new Error(why(p) + await detail(p));
     DFC.dirty.clear(); try { localStorage.removeItem('dfc_draft') } catch (e) { }
   },
   /* Album cover + title from a Google Photos share link (uses api/album-cover.js on Vercel) */
@@ -78,8 +81,25 @@ const DFC = {
     if (!r.ok) throw new Error(j.error || 'Cover lookup failed (' + r.status + ')');
     return j;
   },
+  /* Finds out WHY GitHub says "not found": wrong names, no access for the token, or wrong branch. Returns '' when all is fine. */
+  async diagnose() {
+    if (/YOUR_/.test(GH.owner + GH.repo)) return 'data.js still has YOUR_GITHUB_USERNAME / YOUR_REPO_NAME. Put your real GitHub username and repo name, then commit and push data.js so the live site gets it.';
+    const base = `https://api.github.com/repos/${GH.owner}/${GH.repo}`;
+    let r; try { r = await tf(base, { headers: DFC.hdr() }, 8000) } catch (e) { return 'Could not reach GitHub. Check your internet.' }
+    if (r.status === 401) return 'GitHub rejected the token (wrong, expired, or pasted with spaces). Create a new one and save it again.';
+    if (r.status === 404) return `GitHub cannot see the repo "${GH.owner}/${GH.repo}". Either the name in data.js is spelled differently (copy it from your repo's web address), or your token was not given access to this repo (when creating the token, "Repository access" must include it).`;
+    if (!r.ok) return why(r);
+    const j = await r.json();
+    if (j.permissions && j.permissions.push === false) return 'Your token can read the repo but not write to it. Create it with Contents: Read and write.';
+    if (j.default_branch !== GH.branch) {
+      let b; try { b = await tf(`${base}/branches/${encodeURIComponent(GH.branch)}`, { headers: DFC.hdr() }, 8000) } catch (e) { return '' }
+      if (b.status === 404) return `The branch "${GH.branch}" does not exist in this repo. Its main branch is "${j.default_branch}". Change branch in data.js to '${j.default_branch}'.`;
+    }
+    return '';
+  },
   async test() {
     if (!DFC.token()) return 'No token saved yet.';
+    const dx = await DFC.diagnose(); if (dx) return dx;
     try { const r = await fetch(API + GH.path + '?ref=' + GH.branch, { headers: DFC.hdr() }); return r.ok ? 'Connected to GitHub. Publishing will work.' : why(r) } catch (e) { return 'Could not reach GitHub. Check your internet.' }
   },
 
