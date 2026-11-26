@@ -81,6 +81,13 @@ const DFC = {
     if (!r.ok) throw new Error(j.error || 'Cover lookup failed (' + r.status + ')');
     return j;
   },
+  /* Song video + channel from just a name (uses api/song-lookup.js on Vercel). Returns { id, url, title, artist } */
+  async songInfo(name) {
+    let r; try { r = await fetch(`${API_BASE}/api/song-lookup?q=${encodeURIComponent(name)}`) } catch (e) { throw new Error('Song lookup could not run. It works on the live Vercel site (see API_BASE in data.js for local testing).') }
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(j.error || 'Song lookup failed (' + r.status + ')');
+    return j;
+  },
   /* Finds out WHY GitHub says "not found": wrong names, no access for the token, or wrong branch. Returns '' when all is fine. */
   async diagnose() {
     if (/YOUR_/.test(GH.owner + GH.repo)) return 'data.js still has YOUR_GITHUB_USERNAME / YOUR_REPO_NAME. Put your real GitHub username and repo name, then commit and push data.js so the live site gets it.';
