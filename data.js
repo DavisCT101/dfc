@@ -4,7 +4,7 @@
    inside your GitHub repo. The admin "Publish" button commits changes to
    it through the GitHub API, and Vercel redeploys the site automatically.
    ===================================================================== */
-const GH = { owner: 'davisct101', repo: 'dfc', branch: 'main', path: 'data.json' }; // NOT secret. The token is never written in this file.
+const GH = { owner: 'YOUR_GITHUB_USERNAME', repo: 'YOUR_REPO_NAME', branch: 'main', path: 'data.json' }; // NOT secret. The token is never written in this file.
 /* If you open the admin on your own computer (Live Preview), put your live address here, e.g. 'https://dfc.vercel.app'. On the live site leave it ''. */
 const API_BASE = '';
 const SYNC = ['u', 'a', 'hero', 'songs'];   // these are published to GitHub. members/messages stay in the browser.
@@ -103,6 +103,8 @@ const DFC = {
     try { const r = await fetch(API + GH.path + '?ref=' + GH.branch, { headers: DFC.hdr() }); return r.ok ? 'Connected to GitHub. Publishing will work.' : why(r) } catch (e) { return 'Could not reach GitHub. Check your internet.' }
   },
 
+  /* Full picture address for previews: 'assets/images/a.jpg' works even when the page is inside /admin/ */
+  url(u) { const s = DFC.safe(u); if (!s) return ''; return /^(https?:|data:)/.test(s) ? s : new URL(s.replace(/^\//, ''), new URL('./', HERE)).href },
   esc: s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])),
   safe: u => { u = String(u || '').trim().replace(/\\/g, '/'); if (/^data:image\/(jpeg|png|webp|gif);base64,[\w+\/=]+$/.test(u)) return u; return /^(https?:\/\/[^\s'"]+|[\w\-. ()%\/]+)$/.test(u) ? (/%/.test(u) ? u : encodeURI(u)) : '' },
   admin() { return DFC.get('admin', { user: 'admin', pass: 'dfc2026', name: 'DFC Admin', email: '', phone: '', role: 'Administrator' }) },

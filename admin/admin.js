@@ -8,7 +8,9 @@ const TITLES={dashboard:'Dashboard',members:'Members',messages:'Messages',update
 const ini=n=>(n||'?').trim().split(/\s+/).map(w=>w[0]).slice(0,2).join('').toUpperCase();
 const when=t=>new Date(t).toLocaleString([], {dateStyle:'medium',timeStyle:'short'});
 const toast=t=>{const e=$('#toast');e.textContent=t;e.classList.add('on');setTimeout(()=>e.classList.remove('on'),2200)};
-const bg=u=>S(u)?`style="background-image:url('${S(u)}')"`:'';
+const bg=u=>{const s=DFC.url(u);return s?`style="background-image:url('${E(s)}')"`:''};   /* DFC.url fixes pictures written as assets/... */
+const albumCover=g=>g?new URL(`${API_BASE}/api/album-cover?img=1&w=200&url=${encodeURIComponent(g)}`,location.href).href:'';
+const ytThumb=u=>{const m=String(u||'').match(/(?:youtu\.be\/|[?&]v=|\/shorts\/|\/embed\/)([\w-]{11})/);return m?`https://img.youtube.com/vi/${m[1]}/hqdefault.jpg`:''};
 const imgF=`<div class="c2"><label>Image link<input name="img" placeholder="assets/images/pic.jpg or https://..."></label><label>…or upload a photo<input name="file" type="file" accept="image/*"></label></div>`;
 const getImg=async(f,old)=>{const x=f.file&&f.file.files[0];return x?await DFC.resize(x):(f.img.value.trim()||old||'')};
 
@@ -30,10 +32,10 @@ updates(){return crud('u','This week at DFC','Title','Date or note','d')},
 songs(){const it=ed!==null?L('s')[ed]||{}:{},list=L('s');
  return `<form class="card fm" data-f="s"><h3>${ed!==null?'Edit':'Add'} song</h3><div class="c2"><label>Title<input name="t" value="${E(it.t||'')}" required></label><label>Artist<input name="a" value="${E(it.a||'')}"></label></div>
  <div class="c2"><label>Service<select name="s"><option ${it.s==='Sunday'?'':'selected'}>Friday</option><option ${it.s==='Sunday'?'selected':''}>Sunday</option></select></label><label>Audio link (mp3)<input name="au" value="${E(it.au||'')}" placeholder="assets/audio/song.mp3 or https://..."></label></div>
- <label>Apple Music link (optional, gives cover + preview)<input name="ap" value="${E(it.ap||'')}" placeholder="https://music.apple.com/..."></label>
+ <label>YouTube link (the song plays from YouTube; the cover is taken from the video)<input name="yt" value="${E(it.yt||'')}" placeholder="https://youtu.be/..."></label>
  <label>Lyrics / chords (optional)<textarea name="l" rows="5">${E(it.l||'')}</textarea></label>${imgF.replace('Image link','Cover image link')}
  <div class="acts"><button class="btn">${ed!==null?'Save changes':'Add song'}</button>${ed!==null?'<button type="button" class="btn g" data-a="cancel">Cancel</button>':''}</div></form>
- <section class="card"><h3>Songs (${list.length})</h3>${list.length?list.map((x,i)=>`<div class="row"><div class="thumb" ${bg(x.i)}></div><div class="g1"><b>${E(x.t)}</b><p>${E(x.s)} · ${x.au?E(x.au):'no audio yet'}</p></div><div class="acts"><button class="btn s g" data-a="edit" data-i="${i}">Edit</button><button class="btn s d" data-a="del" data-i="${i}">Delete</button></div></div>`).join(''):'<div class="empty">No songs yet.</div>'}</section>`},
+ <section class="card"><h3>Songs (${list.length})</h3>${list.length?list.map((x,i)=>`<div class="row"><div class="thumb" ${bg(x.i||ytThumb(x.yt))}></div><div class="g1"><b>${E(x.t)}</b><p>${E(x.s)} · ${x.yt?'YouTube':x.au?E(x.au):'no audio yet'}</p></div><div class="acts"><button class="btn s g" data-a="edit" data-i="${i}">Edit</button><button class="btn s d" data-a="del" data-i="${i}">Delete</button></div></div>`).join(''):'<div class="empty">No songs yet.</div>'}</section>`},
 albums(){return crud('a','Photo albums','Album title (optional: taken from Google Photos if left empty)','Google Photos share link (the cover photo is fetched automatically)','g')},
 hero(){const H=L('h');return `<form class="card fm" data-f="h"><h3>Add hero photos</h3>${imgF.replace('name="file"','name="file" multiple')}<div class="acts"><button class="btn">Add</button><button type="button" class="btn g" data-a="reseth">Reset to default</button></div></form>
  <section class="card"><h3>Hero photos (${H.length})</h3><div class="imgs">${H.map((u,i)=>`<div ${bg(u)}><button data-a="delh" data-i="${i}" aria-label="Remove">✕</button></div>`).join('')}</div></section>`},
@@ -48,7 +50,7 @@ function mlist(){const M=L('m').map((m,i)=>[m,i]).filter(([m])=>(m.n+m.e+m.r).to
 function crud(k,title,l1,l2,f2){const it=ed!==null?L(k)[ed]||{}:{},list=L(k);
  return `<form class="card fm" data-f="${k}"><h3>${ed!==null?'Edit':'Add'} ${k==='u'?'update':'album'}</h3><label>${l1}<input name="t" value="${E(it.t||'')}" ${k==='a'?'':'required'}></label><label>${l2}<input name="${f2}" value="${E(it[f2]||'')}" ${k==='a'?'type="url" required':''}></label>${imgF}
  <div class="acts"><button class="btn">${ed!==null?'Save changes':'Publish'}</button>${ed!==null?'<button type="button" class="btn g" data-a="cancel">Cancel</button>':''}</div></form>
- <section class="card"><h3>${title} (${list.length})</h3>${list.length?list.map((x,i)=>`<div class="row"><div class="thumb" ${bg(x.i)}></div><div class="g1"><b>${E(x.t)}</b><p>${E(x[f2]||'')}</p></div><div class="acts"><button class="btn s g" data-a="edit" data-i="${i}">Edit</button><button class="btn s d" data-a="del" data-i="${i}">Delete</button></div></div>`).join(''):'<div class="empty">Nothing here yet.</div>'}</section>`}
+ <section class="card"><h3>${title} (${list.length})</h3>${list.length?list.map((x,i)=>`<div class="row"><div class="thumb" ${bg(x.i||(k==='a'?albumCover(x.g):''))}></div><div class="g1"><b>${E(x.t)}</b><p>${E(x[f2]||'')}</p></div><div class="acts"><button class="btn s g" data-a="edit" data-i="${i}">Edit</button><button class="btn s d" data-a="del" data-i="${i}">Delete</button></div></div>`).join(''):'<div class="empty">Nothing here yet.</div>'}</section>`}
 
 function render(){const G=L('g'),un=G.filter(x=>!x.r).length,a=DFC.admin();
  $('#mb').textContent=un||'';$('#bn').textContent=un||'';$('#av').textContent=ini(a.name);$('#an').textContent=a.name;
@@ -80,7 +82,7 @@ document.addEventListener('submit',async e=>{e.preventDefault();const f=e.target
   if(k==='a'&&(!o.i||!o.t)){const b=f.querySelector('.btn');b.disabled=true;b.textContent='Fetching cover…';
    try{const r=await DFC.albumInfo(o.g);if(!o.i)o.i=r.image;if(!o.t)o.t=r.title||'Photo album'}catch(x){alert(x.message+'\nThe album was saved without a cover. You can add one by hand.');if(!o.t)o.t='Photo album'}}
   ed!==null?x[ed]=o:x.unshift(o);W(k,x);ed=null;toast('Saved. It is now live on the website.')}
- if(k==='s'){const x=L('s'),old=ed!==null?x[ed]:{},o={t:f.t.value,a:f.a.value,s:f.s.value,au:f.au.value.trim(),ap:f.ap.value.trim(),l:f.l.value};o.i=await getImg(f,old.i);ed!==null?x[ed]=o:x.push(o);W('s',x);ed=null;toast('Song saved. It is live on the Songs page.')}
+ if(k==='s'){const x=L('s'),old=ed!==null?x[ed]:{},o={t:f.t.value,a:f.a.value,s:f.s.value,au:f.au.value.trim(),yt:f.yt.value.trim(),l:f.l.value};o.i=await getImg(f,old.i);ed!==null?x[ed]=o:x.push(o);W('s',x);ed=null;toast('Song saved. It is live on the Songs page.')}
  if(k==='h'){const H=L('h');for(const x of f.file.files)H.push(await DFC.resize(x,1000));if(f.img.value.trim())H.push(f.img.value.trim());W('h',H);toast('Hero photos updated')}
  if(k==='gh'){DFC.setToken(f.tk.value.trim());toast('Token saved on this device only')}
  if(k==='p'){const a=DFC.admin();DFC.set('admin',{...a,name:f.elements['name'].value,role:f.role.value,email:f.email.value,phone:f.phone.value,user:f.user.value,pass:f.pass.value||a.pass});toast('Profile saved')}

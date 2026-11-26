@@ -265,102 +265,147 @@
     "assets/images/img14.jpg"
   ],
   "songs": [
-    {
-      "t": "You are good",
-      "a": "ntokozo mambo",
+      {
+      "t": "Friday Slow Set 1",
+      "a": "",
       "s": "Friday",
-      "ap": "https://music.apple.com/us/album/you-are-good/1885498087?i=1885498420",
+      "yt": "https://youtu.be/v0iHd9PGPro",
       "au": "",
       "i": "",
       "l": ""
     },
     {
-      "t": "Good God",
-      "a": "Minister GUc",
-      "s": "Sunday",
-      "ap": "https://music.apple.com/ke/song/good-god-feat-sunmisola-agbebi/1851888073",
-      "au": "",
-      "i": "",
-      "l": ""
-    },
-    {
-      "t": "Niseme Nini",
-      "a": "Dr ipyana",
-      "s": "Sunday",
-      "ap": "https://music.apple.com/ke/song/niseme-nini/1648016759",
-      "au": "",
-      "i": "",
-      "l": ""
-    },
-    {
-      "t": "Umenipendelea",
-      "a": "Henrick Mruma",
+      "t": "Friday Fast Set 1",
+      "a": "",
       "s": "Friday",
-      "ap": "https://music.apple.com/ke/song/umenipendelea-feat-eliya-mwantondo/1841297776",
+      "yt": "https://youtu.be/lwj2Krjdup8",
       "au": "",
       "i": "",
       "l": ""
     },
     {
-      "t": "Ninakuamini",
-      "a": "Boaz Danken",
-      "s": "Sunday",
-      "ap": "https://music.apple.com/ke/song/ninakuamini-live/1851791954",
+      "t": "Friday Fast Set 2",
+      "a": "",
+      "s": "Friday",
+      "yt": "https://youtu.be/ZJxyx0bMxXE",
       "au": "",
       "i": "",
       "l": ""
     },
     {
-      "t": "Have you seen",
-      "a": "Judikay",
-      "s": "Sunday",
-      "ap": "https://music.apple.com/us/music-video/have-you-seen/1839876935",
+      "t": "Friday Fast Set 3",
+      "a": "",
+      "s": "Friday",
+      "yt": "https://youtu.be/q4KzCrpcLjo",
       "au": "",
       "i": "",
       "l": ""
     },
     {
-      "t": "I never seen any God like you",
-      "a": "Emirate stixx",
+      "t": "Hallelujah Eeh",
+      "a": "Nathaniel Bassey",
       "s": "Sunday",
-      "ap": "https://music.apple.com/ke/song/i-never-see-any-god-like-you/1769968016",
+      "yt": "https://youtu.be/BgGkIjd7qe4?si=izO-sQCSA1M-zlTV",
       "au": "",
       "i": "",
       "l": ""
     },
     {
-      "t": "This kind God another one no dey",
-      "a": "Gabriel Eziashi",
+      "t": "First It Was Fragrance",
+      "a": "Dunsin Oyekan",
       "s": "Sunday",
-      "ap": "https://music.apple.com/ke/song/this-kind-god/1511641159",
+      "yt": "https://youtu.be/gqIwEbCyxBo?si=GROPinhVnPQbUjsE",
       "au": "",
       "i": "",
       "l": ""
     },
     {
-      "t": "Mercy",
-      "a": "Moses Bliss",
+      "t": "Take All the Praise",
+      "a": "",
       "s": "Sunday",
-      "ap": "https://music.apple.com/ke/song/mercy/1792850058",
+      "yt": "https://youtu.be/07dgTV33pTA?si=KXIhxndKVxpdSD5h",
       "au": "",
       "i": "",
       "l": ""
     },
     {
-      "t": "Eze ebube",
-      "a": "Neon adejo",
+      "t": "Kwa Shangwe",
+      "a": "Bethu",
       "s": "Sunday",
-      "ap": "https://music.apple.com/ke/song/eze-ebube/1763136846",
+      "yt": "https://youtu.be/JxQF3pGJKag?si=F8UxtQ6AB63SiAow",
       "au": "",
       "i": "",
       "l": ""
     },
     {
-      "t": "No one like you",
-      "a": "Eben",
+      "t": "Akitawala Mambo Ni Sawa",
+      "a": "",
       "s": "Sunday",
-      "ap": "",
-      "au": "songs/No One Like You - Ft Nathaniel Bassey.mp3",
+      "yt": "https://youtu.be/Y8-Cy8RVG_w?si=OjNNubOFt9CkuQBF",
+      "au": "",
+      "i": "",
+      "l": ""
+    },
+    {
+      "t": "Nakungoja",
+      "a": "Grace Kavesu (The Icons)",
+      "s": "Sunday",
+      "yt": "https://youtu.be/vhUbQcJqdww?si=zX2af4foQnAB955H",
+      "au": "",
+      "i": "",
+      "l": ""
+    },
+    {
+      "t": "Second Service Slow Set 1",
+      "a": "",
+      "s": "Sunday",
+      "yt": "https://youtu.be/aSyY2D-2jSM",
+      "au": "",
+      "i": "",
+      "l": ""
+    },
+    {
+      "t": "Second Service Slow Set 2",
+      "a": "",
+      "s": "Sunday",
+      "yt": "https://youtu.be/NZ6oTmngasY",
+      "au": "",
+      "i": "",
+      "l": ""
+    },
+    {
+      "t": "Second Service Slow Set 3",
+      "a": "",
+      "s": "Sunday",
+      "yt": "https://youtu.be/yH1FJEQBzss",
+      "au": "",
+      "i": "",
+      "l": ""
+    },
+    {
+      "t": "Hakuna Usiloliweza",
+      "a": "Essence",
+      "s": "Sunday",
+      "yt": "https://youtu.be/Zy74iTOh8RE?si=68zMG_TMsucliGPa",
+      "au": "",
+      "i": "",
+      "l": ""
+    },
+    {
+      "t": "Hakuna Mungu Kama Wewe Bwana",
+      "a": "Evelyn Wanjiru",
+      "s": "Sunday",
+      "yt": "https://youtu.be/_63sznwOwGM?si=5m_wZJRyNAVBUmSM",
+      "au": "",
+      "i": "",
+      "l": ""
+    },
+    {
+      "t": "Hizi Ni Kelele Za Nini",
+      "a": "",
+      "s": "Sunday",
+      "yt": "https://youtu.be/OQ_NcLy-U-I?si=kX6chApeqm0gdPVr",
+      "au": "",
       "i": "",
       "l": ""
     }
