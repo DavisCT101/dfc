@@ -13,10 +13,16 @@
       href="https://fonts.googleapis.com/css2?family=Rock+Salt&family=Permanent+Marker&family=Outfit:wght@300;400;500;600&display=swap"
       rel="stylesheet"
     />
-       <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital@1&display=swap" rel="stylesheet">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital@1&display=swap"
+      rel="stylesheet"
+    />
     <link rel="shortcut icon" href="logo.png" type="image/x-icon" />
     <link rel="stylesheet" href="style.css" />
-    <link rel="stylesheet" href="songs-section.css">
+    <link rel="stylesheet" href="songs-section.css" />
+    <link rel="preconnect" href="https://www.youtube.com" />
+    <link rel="preconnect" href="https://i.ytimg.com" />
+    <link rel="preconnect" href="https://img.youtube.com" />
   </head>
   <body>
     <nav aria-label="Main">
@@ -81,7 +87,7 @@
       <div class="car" id="car"><div class="ct" id="ct"></div></div>
       <div class="dots" id="dots"></div>
     </section>
-    <!-- ===== SONGS: paste this right AFTER the closing </section> of the Updates section, and BEFORE the Albums section ===== -->
+    <!-- ===== SONGS: paste between the Updates section and the Albums section in index.html ===== -->
     <section class="songs" id="songs" aria-label="Songs of the week">
       <div class="sg-pin">
         <div class="sg-bgs" id="sgBgs" aria-hidden="true"></div>
@@ -99,10 +105,16 @@
           <p class="sg-kind" id="sgKind"></p>
           <div class="sg-btns">
             <button class="sgb" id="sgPlay">Play ▶</button
-            ><button class="sgb" id="sgLyr">Lyrics</button>
+            ><button class="sgb" id="sgLyr">Lyrics</button
+            ><a class="sgb sgb-mini" id="sgSkip" href="#albums">Albums ↓</a>
           </div>
           <p class="sg-hint" id="sgHint">
             Press play, then scroll to move through this week’s songs.
+          </p>
+          <p class="sg-links">
+            <a id="sgYtAll" target="_blank" rel="noopener" hidden
+              >Listen to this set on YouTube ↗</a
+            >
           </p>
         </div>
         <div class="sg-no" aria-hidden="true">
@@ -145,8 +157,12 @@
         <form class="f" id="cf">
           <h2>Contact us</h2>
           <!-- Your Web3Forms Access Key -->
-  <input type="hidden" name="access_key" value="30496fa5-23ce-46c0-8238-852c6bae45cf">
-   
+          <input
+            type="hidden"
+            name="access_key"
+            value="30496fa5-23ce-46c0-8238-852c6bae45cf"
+          />
+
           <div class="two">
             <label>Name<input required placeholder="Enter your name" /></label
             ><label
@@ -207,8 +223,8 @@
       </div>
     </footer>
 
-<script src="data.js"></script>
-<script src="script.js"></script>
-<script src="songs.js"></script>
+    <script src="data.js"></script>
+    <script src="script.js"></script>
+    <script src="songs.js"></script>
   </body>
 </html>

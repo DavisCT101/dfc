@@ -47,11 +47,7 @@
     }
   ],
   "a": [
-    {
-      "t": "Exposition ",
-      "g": "https://photos.app.goo.gl/pftFhYVv6KrWoQuz9",
-      "i": "assets/uploads/1795636857775-0.jpg"
-    },
+
     {
       "t": "Creative Night 2026",
       "g": "",
@@ -246,6 +242,10 @@
       "t": "Principles of honour 2nd service ",
       "g": "https://photos.app.goo.gl/KJgWRwJh6cFs1T3XA",
       "i": ""
+    }, {
+      "t": "Exposition ",
+      "g": "https://photos.app.goo.gl/pftFhYVv6KrWoQuz9",
+      "i": "assets/uploads/1795636857775-0.jpg"
     }
   ],
   "hero": [

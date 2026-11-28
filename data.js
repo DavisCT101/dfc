@@ -81,11 +81,11 @@ const DFC = {
     if (!r.ok) throw new Error(j.error || 'Cover lookup failed (' + r.status + ')');
     return j;
   },
-  /* Song video + channel from just a name (uses api/song-lookup.js on Vercel). Returns { id, url, title, artist } */
-  async songInfo(name) {
-    let r; try { r = await fetch(`${API_BASE}/api/song-lookup?q=${encodeURIComponent(name)}`) } catch (e) { throw new Error('Song lookup could not run. It works on the live Vercel site (see API_BASE in data.js for local testing).') }
+  /* Best YouTube video for a song name (uses api/yt-search.js on Vercel). Returns { best, items } */
+  async findSong(q) {
+    let r; try { r = await fetch(`${API_BASE}/api/yt-search?q=${encodeURIComponent(q)}`, { headers: DFC.token() ? { Authorization: 'Bearer ' + DFC.token() } : {} }) } catch (e) { throw new Error('Song search could not run. It works on the live Vercel site (see API_BASE in data.js for local testing).') }
     const j = await r.json().catch(() => ({}));
-    if (!r.ok) throw new Error(j.error || 'Song lookup failed (' + r.status + ')');
+    if (!r.ok) throw new Error(j.error || 'Song search failed (' + r.status + ')');
     return j;
   },
   /* Finds out WHY GitHub says "not found": wrong names, no access for the token, or wrong branch. Returns '' when all is fine. */

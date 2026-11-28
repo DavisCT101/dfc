@@ -1,17 +1,25 @@
-/* songs.js: the songs section for the DFC website. Load it AFTER script.js. */
-/* =====================================================================
+/* songs.js: the songs section. Load it AFTER data.js and script.js.
    Each song comes from data.json (edited in the admin):
      t = title   a = artist   s = 'Friday' or 'Sunday'
      yt = YouTube link (plays inside the record; the cover is the video thumbnail)
      au = your own audio file (used when there is no YouTube link)
-     i = cover picture (optional)   l = lyrics
-   ===================================================================== */
+     i = cover picture (optional)   l = lyrics                                         */
 DFC.ready.then(() => {
 
 const SONGS = DFC.get('songs', []);
 const $ = s => document.querySelector(s), FADE = 1800;
 const sec = $('#songs'), stack = $('#sgStack'), bgs = $('#sgBgs'), now = $('#now');
-if (!sec) return;
+
+/* ---- self-check: tells you (in the console and on the page) what is missing instead of staying blank ---- */
+const NEED = ['songs', 'sgBgs', 'sgCount', 'sgTabs', 'sgStack', 'sgMeta', 'sgYear', 'sgTitle', 'sgKind', 'sgPlay', 'sgLyr', 'sgRing', 'sgNo', 'sgMq', 'lyOv', 'lyT', 'lyB', 'lyX', 'now', 'wf', 'nowT', 'nowBtn', 'nowBar'];
+const missing = NEED.filter(id => !document.getElementById(id));
+if (missing.length) {
+  console.error('songs.js: index.html is missing these ids: ' + missing.join(', ') + '. Paste the full songs HTML block (see songs-section.html).');
+  if (sec) sec.innerHTML = '<div style="padding:140px 24px 24px;color:#f5a30a;font:16px monospace">Songs section HTML is incomplete. Missing ids: ' + missing.join(', ') + '</div>';
+  return;
+}
+const fail = e => { console.error('songs.js failed:', e); $('#sgTitle').textContent = 'Songs could not load'; $('#sgKind').textContent = String(e && e.message || e); };
+if (!Array.isArray(SONGS)) { fail(new Error('"songs" in data.json is not a list. Check the [ ] brackets and commas.')); return; }
 
 let all = [], list = [], filt = 'all', on = false, unlocked = false, idx = -1, f = 0, vis = false, adv = false, recs = [], bgEls = [], cur = null;
 const live = new Set();   // every voice (YouTube or audio) that exists right now
@@ -20,18 +28,26 @@ const ytId = u => ((String(u || '')).match(/(?:youtu\.be\/|[?&]v=|\/shorts\/|\/e
 
 /* ---------- covers ---------- */
 const PAL = [['#7a1f2b', '#f5a30a'], ['#10243d', '#3aa0ff'], ['#2a0f3a', '#ff5fa2'], ['#0e3b2e', '#f5c542'], ['#3b1020', '#ff8a3d'], ['#16213e', '#7fe3e3']];
-function makeCover(s, k) {   // a made-up cover, only used when a song has no YouTube thumbnail and no picture
-  const c = document.createElement('canvas'); c.width = c.height = 700; const x = c.getContext('2d'), [a, b] = PAL[k % PAL.length];
-  const g = x.createLinearGradient(0, 0, 700, 700); g.addColorStop(0, a); g.addColorStop(1, b); x.fillStyle = g; x.fillRect(0, 0, 700, 700);
-  x.fillStyle = '#fff'; x.textAlign = 'center'; x.font = 'italic 64px "Playfair Display",Georgia,serif';
-  let lines = [], l = ''; (s.t || '').split(' ').forEach(t => { if ((l + ' ' + t).trim().length > 12 && l) { lines.push(l); l = t } else l = (l + ' ' + t).trim() }); lines.push(l);
-  lines.forEach((t, i) => x.fillText(t, 350, 330 - (lines.length - 1) * 34 + i * 74));
-  x.font = '500 22px Outfit,sans-serif'; x.globalAlpha = .8; x.fillText('DANCERS FOR CHRIST  ·  ' + (s.s || '').toUpperCase(), 350, 640);
+function makeCover(s, k) {   // a made-up landscape cover, only used when a song has no YouTube thumbnail and no picture
+  const c = document.createElement('canvas'); c.width = 1280; c.height = 720; const x = c.getContext('2d'), [a, b] = PAL[k % PAL.length];
+  const g = x.createLinearGradient(0, 0, 1280, 720); g.addColorStop(0, a); g.addColorStop(1, b); x.fillStyle = g; x.fillRect(0, 0, 1280, 720);
+  x.fillStyle = '#fff'; x.textAlign = 'center'; x.font = 'italic 84px "Playfair Display",Georgia,serif';
+  let lines = [], l = ''; (s.t || '').split(' ').forEach(t => { if ((l + ' ' + t).trim().length > 18 && l) { lines.push(l); l = t } else l = (l + ' ' + t).trim() }); lines.push(l);
+  lines.forEach((t, i) => x.fillText(t, 640, 350 - (lines.length - 1) * 52 + i * 104));
+  x.font = '500 26px Outfit,sans-serif'; x.globalAlpha = .8; x.fillText('DANCERS FOR CHRIST  ·  ' + (s.s || '').toUpperCase(), 640, 660);
   return c.toDataURL('image/jpeg', .82);
 }
-function ytCover(id) {       // the video thumbnail (big version if it exists, normal one otherwise)
-  const u = n => `https://img.youtube.com/vi/${id}/${n}.jpg`;
-  return new Promise(r => { const im = new Image(); im.onload = () => r(im.naturalWidth > 300 ? u('maxresdefault') : u('hqdefault')); im.onerror = () => r(u('hqdefault')); im.src = u('maxresdefault') });
+function paint(song) {      // put a (better) cover on the record and the blurred background
+  const k = list.indexOf(song); if (k < 0 || !recs[k]) return;
+  const c = DFC.safe(song.i); if (c) { recs[k].style.backgroundImage = `url("${c}")`; bgEls[k].style.backgroundImage = `url("${c}")` }
+}
+function upgradeCovers() {   // the sharp 1280px thumbnail, loaded in order, so the first songs get it first
+  all.forEach(song => {
+    if (!song._hd) return;
+    const big = `https://img.youtube.com/vi/${ytId(song.yt)}/maxresdefault.jpg`, im = new Image();
+    im.onload = () => { if (im.naturalWidth > 300) { song.i = big; paint(song) } };
+    im.src = big;
+  });
 }
 
 /* ---------- YouTube API ---------- */
@@ -47,13 +63,14 @@ function loadYT() {
   return ytP;
 }
 
-async function prepare() {
-  all = await Promise.all(SONGS.map(async (s, k) => {
-    const x = { ...s, t: s.t || '', a: s.a || '' }, id = ytId(x.yt);
-    if (!x.i && id) x.i = await ytCover(id);
-    return { ...x, i: x.i || makeCover(x, k) };
-  }));
-  if (all.some(s => ytId(s.yt))) loadYT();   // load early so Play starts instantly
+function prepare() {
+  if (SONGS.some(x => ytId(x.yt))) loadYT();   // start loading the YouTube player code straight away
+  all = SONGS.map((x0, k) => {
+    const x = { ...x0, t: x0.t || '', a: x0.a || '' }, id = ytId(x.yt);
+    const auto = !x.i && id;                                    // no picture given: use the video thumbnail
+    if (auto) x.i = `https://img.youtube.com/vi/${id}/mqdefault.jpg`;   // small one first = the section appears instantly
+    return { ...x, i: x.i || makeCover(x, k), _hd: !!auto };
+  });
 }
 
 /* ---------- voices: one per song while it plays. Both kinds share the same small set of methods ---------- */
@@ -68,11 +85,11 @@ function audioVoice(s) {
   v.dispose = () => { a.pause(); a.removeAttribute('src'); a.load() };
   return track(v);
 }
-function ytVoice(i, s) {
+function ytVoice(i, s, cue) {
   const rec = recs[i], box = rec.querySelector('.ytbox'), host = document.createElement('div'), v = { cv: 0, raf: 0 };
   box.textContent = ''; box.appendChild(host); rec.classList.add('playing');   // the video shows inside the record (it must stay visible)
   let p, ready = false, want = false;
-  const vars = { autoplay: 1, playsinline: 1, rel: 0, modestbranding: 1 }; if (location.protocol.startsWith('http')) vars.origin = location.origin;
+  const vars = { autoplay: cue ? 0 : 1, playsinline: 1, rel: 0, modestbranding: 1 }; if (location.protocol.startsWith('http')) vars.origin = location.origin;
   p = new YT.Player(host, {
     width: '100%', height: '100%', videoId: ytId(s.yt), playerVars: vars,
     events: {
@@ -87,8 +104,16 @@ function ytVoice(i, s) {
   v.dispose = () => { try { p.destroy() } catch (e) { } box.textContent = ''; rec.classList.remove('playing') };
   return track(v);
 }
+let warmed = null;   // { i, v }: the NEXT song's player, loaded in advance and waiting
+function warm(i) {
+  const s = list[i];
+  if (!s || !ytId(s.yt) || !(window.YT && YT.Player) || (warmed && warmed.i === i)) return;
+  if (warmed) { warmed.v.dispose(); warmed = null }
+  warmed = { i, v: ytVoice(i, s, true) };
+}
 function makeVoice(i) {
   const s = list[i];
+  if (warmed && warmed.i === i) { const v = warmed.v; warmed = null; return v }
   if (ytId(s.yt) && window.YT && YT.Player) return ytVoice(i, s);
   if (s.au) return audioVoice(s);
   return null;
@@ -110,7 +135,7 @@ function crossTo(i) {
   const old = cur; cur = null;
   if (old) ramp(old.v, 0, () => old.v.dispose());
   const v = makeVoice(i);
-  if (v) { cur = { i, v }; v.start(); ramp(v, 1) }
+  if (v) { cur = { i, v }; v.start(); ramp(v, 1); warm(i + 1) }
   else if (ytId(s.yt)) loadYT().then(() => { if (on && idx === i && !cur) crossTo(i) });   // API was still loading
 }
 function toggle() {
@@ -131,7 +156,9 @@ function goTo(i) {
 function advance() {   // next song; if the visitor scrolled away we crossfade without yanking the page back
   const n = (cur ? cur.i : idx) + 1;
   if (n >= list.length) { on = false; live.forEach(v => v.pause()); pui(); return false }
-  return vis ? goTo(n) : (crossTo(n), true);
+  crossTo(n);                 // start the music first (this still works when the phone screen is off)
+  if (vis) goTo(n);           // and, if the section is on screen, scroll to it too
+  return true;
 }
 setInterval(() => {   // progress bar + start the next song just before this one ends
   if (!cur) return;
@@ -144,7 +171,7 @@ setInterval(() => {   // progress bar + start the next song just before this one
 function setHeight() { sec.style.height = unlocked ? `calc(100svh + ${Math.max(list.length - 1, 0) * 80}svh)` : '100svh'; sec.classList.toggle('live', unlocked) }
 function target() { const r = sec.getBoundingClientRect(), range = sec.offsetHeight - innerHeight; if (!unlocked || list.length < 2 || range <= 0) return 0; return clamp(-r.top / range, 0, 1) * (list.length - 1) }
 function build() {
-  live.forEach(v => v.dispose()); live.clear(); cur = null;
+  live.forEach(v => v.dispose()); live.clear(); cur = null; warmed = null;
   list = filt === 'all' ? all : all.filter(s => s.s === filt);
   stack.textContent = ''; bgs.textContent = '';
   recs = list.map((s, i) => {
@@ -154,16 +181,18 @@ function build() {
   });
   bgEls = list.map(s => { const d = document.createElement('div'); d.className = 'sg-bg'; const c = DFC.safe(s.i); if (c) d.style.backgroundImage = `url("${c}")`; bgs.appendChild(d); return d });
   setHeight();
+  const all50 = list.map(x => ytId(x.yt)).filter(Boolean).slice(0, 50), pl = $('#sgYtAll');   // one YouTube playlist of this set (YouTube's app can keep playing with the screen off if you have Premium)
+  if (pl) { pl.hidden = !all50.length; pl.href = 'https://www.youtube.com/watch_videos?video_ids=' + all50.join(',') }
   $('#sgCount').textContent = `This week's songs / ${list.length} ${list.length === 1 ? 'song' : 'songs'}`;
   const art = [...new Set(all.map(s => s.a).filter(Boolean))]; if (!art.length) art.push('DFC Worship Team');
   const mq = $('#sgMq'); mq.textContent = ''; for (let r = 0; r < 2; r++) art.forEach(a => { const s = document.createElement('span'); s.textContent = a; const b = document.createElement('b'); b.textContent = '✶'; mq.append(s, b) });
   idx = -1; f = target(); place();
 }
 function place() {
-  const S = stack.offsetWidth, n = list.length;
+  const H = stack.offsetHeight, n = list.length;
   recs.forEach((r, i) => {
-    const d = i - f, a = Math.abs(d), y = d < 0 ? d * S * 1.5 : Math.min(d, 2) * S * .95, sc = 1 - Math.min(a, 1) * .6, rot = clamp(d * 5, -10, 10), op = d < 0 ? clamp(1 + d * 1.5, 0, 1) : clamp(1 - d * .55, 0, 1);
-    r.style.transform = `translate3d(0,${y}px,0) rotate(${rot}deg) scale(${sc})`; r.style.opacity = op; r.style.zIndex = 50 - Math.round(a * 10); r.style.pointerEvents = unlocked && op > .2 ? 'auto' : 'none';
+    const d = i - f, a = Math.abs(d), y = d < 0 ? d * H * 1.6 : Math.min(d, 2) * H * .78, sc = 1 - Math.min(a, 1) * .6, rot = clamp(d * 5, -10, 10), op = d < 0 ? clamp(1 + d * 1.5, 0, 1) : clamp(1 - d * .55, 0, 1);
+    r.style.transform = `translate3d(0,${y}px,0) rotate(${rot}deg) scale(${sc})`; r.style.opacity = op; r.style.zIndex = 50 - Math.round(a * 10); r.style.pointerEvents = op > .2 && (unlocked || a < .5) ? 'auto' : 'none';
     bgEls[i].style.opacity = clamp(1 - a, 0, 1) * .95;
   });
   const act = n ? clamp(Math.round(f), 0, n - 1) : -1;
@@ -178,7 +207,15 @@ function ui() {
   if ('mediaSession' in navigator && window.MediaMetadata) navigator.mediaSession.metadata = new MediaMetadata({ title: s.t, artist: s.a || 'DFC' });
   pui();
 }
-function pui() { $('#sgPlay').textContent = on ? 'Pause ❚❚' : 'Play ▶'; $('#nowBtn').textContent = on ? 'Pause' : 'Play'; $('#wf').classList.toggle('playing', on); now.hidden = !(vis || on) }
+/* lock screen + notification controls (play, pause, next, previous) */
+if ('mediaSession' in navigator) {
+  const ms = navigator.mediaSession, h = (a, f) => { try { ms.setActionHandler(a, f) } catch (e) { } };
+  h('play', () => { if (!on) toggle() }); h('pause', () => { if (on) toggle() });
+  h('nexttrack', () => { if (cur) advance() });
+  h('previoustrack', () => { const n = (cur ? cur.i : idx) - 1; if (n >= 0) { crossTo(n); if (vis) goTo(n) } });
+}
+function pui() {
+  if ('mediaSession' in navigator) navigator.mediaSession.playbackState = on ? 'playing' : 'paused'; $('#sgPlay').textContent = on ? 'Pause ❚❚' : 'Play ▶'; $('#nowBtn').textContent = on ? 'Pause' : 'Play'; $('#wf').classList.toggle('playing', on); now.hidden = !(vis || on) }
 
 /* ---------- buttons ---------- */
 $('#sgPlay').onclick = toggle; $('#nowBtn').onclick = toggle;
@@ -186,12 +223,14 @@ $('#sgLyr').onclick = () => { const s = list[idx]; if (!s) return; $('#lyT').tex
 $('#lyX').onclick = () => $('#lyOv').classList.remove('open');
 $('#lyOv').onclick = e => { if (e.target.id === 'lyOv') e.target.classList.remove('open') };
 addEventListener('keydown', e => { if (e.key === 'Escape') $('#lyOv').classList.remove('open') });
-stack.onclick = e => { const r = e.target.closest('.rec'); if (r) goTo(+r.dataset.i) };
+const skip = $('#sgSkip');
+if (skip) skip.onclick = e => { e.preventDefault(); const a = document.getElementById('albums'); if (a) a.scrollIntoView({ behavior: 'instant', block: 'start' }) };   // escape the song scroll; the music keeps playing
+stack.onclick = e => { const r = e.target.closest('.rec'); if (!r) return; const i = +r.dataset.i; if (i === idx) toggle(); else goTo(i) };   // click the front cover = play; click another cover = go to it
 $('#sgTabs').onclick = e => { const v = e.target.dataset.f; if (!v) return; filt = v; document.querySelectorAll('#sgTabs button').forEach(b => b.classList.toggle('on', b === e.target)); build() };
 new IntersectionObserver(es => { vis = es[0].isIntersecting; pui() }, { rootMargin: '120px' }).observe(sec);
 addEventListener('resize', place);
 
-function start() { prepare().then(() => { build(); (function tick() { requestAnimationFrame(tick); if (!vis) return; const t = target(); f += (t - f) * .14; if (Math.abs(t - f) < .001) f = t; place() })() }) }
+function start() { Promise.resolve(prepare()).then(() => { build(); upgradeCovers(); (function tick() { requestAnimationFrame(tick); if (!vis) return; const t = target(); f += (t - f) * .14; if (Math.abs(t - f) < .001) f = t; place() })() }).catch(fail) }
 Promise.race([document.fonts ? document.fonts.load('italic 64px "Playfair Display"') : 0, new Promise(r => setTimeout(r, 1500))]).then(start, start);
 
 });

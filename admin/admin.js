@@ -32,10 +32,10 @@ updates(){return crud('u','This week at DFC','Title','Date or note','d')},
 songs(){const it=ed!==null?L('s')[ed]||{}:{},list=L('s');
  return `<form class="card fm" data-f="s"><h3>${ed!==null?'Edit':'Add'} song</h3><div class="c2"><label>Title<input name="t" value="${E(it.t||'')}" required></label><label>Artist<input name="a" value="${E(it.a||'')}"></label></div>
  <div class="c2"><label>Service<select name="s"><option ${it.s==='Sunday'?'':'selected'}>Friday</option><option ${it.s==='Sunday'?'selected':''}>Sunday</option></select></label><label>Audio link (mp3)<input name="au" value="${E(it.au||'')}" placeholder="assets/audio/song.mp3 or https://..."></label></div>
- <label>YouTube link (the song plays from YouTube; the cover is taken from the video)<input name="yt" value="${E(it.yt||'')}" placeholder="https://youtu.be/..."></label>
+ <label>YouTube link (leave it EMPTY and the song is found on YouTube from its name)<input name="yt" value="${E(it.yt||'')}" placeholder="https://youtu.be/..."></label>
  <label>Lyrics / chords (optional)<textarea name="l" rows="5">${E(it.l||'')}</textarea></label>${imgF.replace('Image link','Cover image link')}
  <div class="acts"><button class="btn">${ed!==null?'Save changes':'Add song'}</button>${ed!==null?'<button type="button" class="btn g" data-a="cancel">Cancel</button>':''}</div></form>
- <section class="card"><h3>Songs (${list.length})</h3>${list.length?list.map((x,i)=>`<div class="row"><div class="thumb" ${bg(x.i||ytThumb(x.yt))}></div><div class="g1"><b>${E(x.t)}</b><p>${E(x.s)} · ${x.yt?'YouTube':x.au?E(x.au):'no audio yet'}</p></div><div class="acts"><button class="btn s g" data-a="edit" data-i="${i}">Edit</button><button class="btn s d" data-a="del" data-i="${i}">Delete</button></div></div>`).join(''):'<div class="empty">No songs yet.</div>'}</section>`},
+ <section class="card"><h3>Songs (${list.length}) <button type="button" class="btn s" data-a="findall" style="float:right">Find missing on YouTube</button></h3>${list.length?list.map((x,i)=>`<div class="row"><div class="thumb" ${bg(x.i||ytThumb(x.yt))}></div><div class="g1"><b>${E(x.t)}</b><p>${E(x.s)} · ${x.yt?'YouTube'+(x.ym?' · matched: '+E(x.ym):''):x.au?E(x.au):'no video yet'}</p></div><div class="acts"><button class="btn s g" data-a="edit" data-i="${i}">Edit</button><button class="btn s d" data-a="del" data-i="${i}">Delete</button></div></div>`).join(''):'<div class="empty">No songs yet.</div>'}</section>`},
 albums(){return crud('a','Photo albums','Album title (optional: taken from Google Photos if left empty)','Google Photos share link (the cover photo is fetched automatically)','g')},
 hero(){const H=L('h');return `<form class="card fm" data-f="h"><h3>Add hero photos</h3>${imgF.replace('name="file"','name="file" multiple')}<div class="acts"><button class="btn">Add</button><button type="button" class="btn g" data-a="reseth">Reset to default</button></div></form>
  <section class="card"><h3>Hero photos (${H.length})</h3><div class="imgs">${H.map((u,i)=>`<div ${bg(u)}><button data-a="delh" data-i="${i}" aria-label="Remove">✕</button></div>`).join('')}</div></section>`},
@@ -62,6 +62,7 @@ document.addEventListener('click',e=>{const t=e.target.closest('[data-v],[data-a
  if(t.dataset.v){view=t.dataset.v;sel=null;ed=null;$('#side').classList.remove('open');return render()}
  const a=t.dataset.a,i=+t.dataset.i,ask=m=>confirm(m);
  if(a==='test'){DFC.test().then(toast);return}
+ if(a==='findall'){findAll(t);return}
  if(a==='burger')return $('#side').classList.toggle('open');
  if(a==='out'){ses.set(false);return enter()}
  if(a==='open'){sel=i;const G=L('g');G[i].r=true;W('g',G);return render()}
@@ -82,11 +83,19 @@ document.addEventListener('submit',async e=>{e.preventDefault();const f=e.target
   if(k==='a'&&(!o.i||!o.t)){const b=f.querySelector('.btn');b.disabled=true;b.textContent='Fetching cover…';
    try{const r=await DFC.albumInfo(o.g);if(!o.i)o.i=r.image;if(!o.t)o.t=r.title||'Photo album'}catch(x){alert(x.message+'\nThe album was saved without a cover. You can add one by hand.');if(!o.t)o.t='Photo album'}}
   ed!==null?x[ed]=o:x.unshift(o);W(k,x);ed=null;toast('Saved. It is now live on the website.')}
- if(k==='s'){const x=L('s'),old=ed!==null?x[ed]:{},o={t:f.t.value,a:f.a.value,s:f.s.value,au:f.au.value.trim(),yt:f.yt.value.trim(),l:f.l.value};o.i=await getImg(f,old.i);ed!==null?x[ed]=o:x.push(o);W('s',x);ed=null;toast('Song saved. It is live on the Songs page.')}
+ if(k==='s'){const x=L('s'),old=ed!==null?x[ed]:{},o={t:f.t.value.trim(),a:f.a.value.trim(),s:f.s.value,au:f.au.value.trim(),yt:f.yt.value.trim(),l:f.l.value};o.ym=(o.yt&&o.yt===old.yt)?(old.ym||''):'';o.i=await getImg(f,old.i);
+  if(!o.yt&&!o.au){const b=f.querySelector('.btn');b.disabled=true;b.textContent='Searching YouTube…';try{await matchSong(o)}catch(x){alert(x.message+'\nThe song was saved without a video. You can paste a YouTube link by hand.')}}
+  ed!==null?x[ed]=o:x.push(o);W('s',x);ed=null;toast('Song saved. It is live on the Songs page.')}
  if(k==='h'){const H=L('h');for(const x of f.file.files)H.push(await DFC.resize(x,1000));if(f.img.value.trim())H.push(f.img.value.trim());W('h',H);toast('Hero photos updated')}
  if(k==='gh'){DFC.setToken(f.tk.value.trim());toast('Token saved on this device only')}
  if(k==='p'){const a=DFC.admin();DFC.set('admin',{...a,name:f.elements['name'].value,role:f.role.value,email:f.email.value,phone:f.phone.value,user:f.user.value,pass:f.pass.value||a.pass});toast('Profile saved')}
  render()});
+/* finds the best YouTube video for a song from its name (and artist, if given) */
+async function matchSong(o){const r=await DFC.findSong((o.t+' '+(o.a||'')).trim()),b=r.best;o.yt='https://youtu.be/'+b.id;if(!o.a)o.a=b.channel.replace(/\s*-\s*Topic$/i,'').replace(/VEVO$/i,'').trim();o.ym=b.title+' — '+b.channel;return o}
+async function findAll(btn){const x=L('s'),todo=x.filter(s=>!s.yt&&!s.au&&s.t);if(!todo.length)return toast('Every song already has a video');
+ btn.disabled=true;let ok=0;const bad=[];
+ for(let n=0;n<todo.length;n++){btn.textContent=`Searching ${n+1} of ${todo.length}…`;try{await matchSong(todo[n]);ok++}catch(e){bad.push(todo[n].t);if(/key|quota|signed in|token|403|401/i.test(e.message)){alert(e.message);break}}}
+ W('s',x);render();alert(`Found ${ok} of ${todo.length} songs.\nCheck the "matched" line under each title, fix any wrong ones, then press Publish.`+(bad.length?'\nNot found: '+bad.join(', '):''))}
 function pubUI(){const p=$('#pub');if(p)p.hidden=!DFC.dirty.size}
 if($('#pubbtn'))$('#pubbtn').onclick=async e=>{const b=e.target;b.disabled=true;b.textContent='Publishing…';try{await DFC.publish();toast('Published! The live site updates in about a minute.')}catch(x){alert(x.message)}b.disabled=false;b.textContent='Publish to website';render()};
 enter();
